@@ -2,6 +2,8 @@
 
 WD=$(pwd)
 
+git submodule update --init --recursive
+
 sudo apt update
 sudo apt install wget
 
@@ -40,8 +42,11 @@ function funNPUSetup() {
   sudo dpkg -i libze1_*.deb
 
   # STEP 6: Optional TODO: Recheck
-  # sudo gpasswd -a ${USER} render
-  # newgrp render
+  sudo gpasswd -a ${USER} render
+  newgrp render
+  # https://medium.com/openvino-toolkit/how-to-run-openvino-on-a-linux-ai-pc-52083ce14a98
+  sudo bash -c "echo 'SUBSYSTEM==\"accel\", KERNEL==\"accel*\", GROUP=\"render\", MODE=\"0660\"' > /etc/udev/rules.d/10-intel-vpu.rules"
+  sudo usermod -a -G render $USER
   #
   cat << __EOF
   # Reboot your system and check that hardware is setup properly like:
@@ -55,8 +60,14 @@ __EOF
 function funGPUSetup() { # TODO:(0)
   cd ${WD}
   # Install OpenCL:
-  # REF: https://docs.openvino.ai/2026/get-started/install-openvino/configurations/configurations-intel-gpu.html
-  echo "GPU script pending"
+  # REF: https://docs.openvino.ai/2026/get-started/install-openvino/configurations/configurations-intel-gpu.html # TODO
+  # REF: https://medium.com/openvino-toolkit/how-to-run-openvino-on-a-linux-ai-pc-52083ce14a98                   # TODO
+  #      sudo apt install -y software-properties-common
+  #      sudo add-apt-repository -y ppa:kobuk-team/intel-graphics
+  #      sudo apt install -y \
+  #       libze-intel-gpu1 libze1 intel-metrics-discovery intel-opencl-icd clinfo \
+  #       intel-gsc intel-media-va-driver-non-free libmfx-gen1 libvpl2 libvpl-tools \
+  #       libva-glx2 va-driver-all vainfo libze-dev intel-ocloc
 }
 
 function funPIPSetup() {
@@ -68,7 +79,22 @@ function funPIPSetup() {
   pip install openvino==2026.0.0
 }
 
+function funSetupOpenVINONotebookExamples {
+  cd ${WD}
+  source .venv/bin/activate
+  .venv/bin/python -m pip install -r openvino_notebooks.git/requirements.txt
+}
+
+function funLaunchJupyterLab {
+  cd ${WD}
+  source .venv/bin/activate
+  ./.venv/bin/jupyter lab
+}
+
+
 
 funNPUSetup
 funGPUSetup
-# funPIPSetup # TODO:(0) Remove comment
+funPIPSetup
+funSetupOpenVINONotebookExamples
+funLaunchJupyterLab
