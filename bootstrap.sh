@@ -4,8 +4,10 @@ WD=$(pwd)
 
 git submodule update --init --recursive
 
-sudo apt update
-sudo apt install wget
+#### sudo apt update
+#### sudo apt install wget tmux tmuxinator
+
+export EDITOR=vim
 
 function funNPUSetup() {
   mkdir ${WD}/tmp
@@ -68,6 +70,9 @@ function funGPUSetup() { # TODO:(0)
   #       libze-intel-gpu1 libze1 intel-metrics-discovery intel-opencl-icd clinfo \
   #       intel-gsc intel-media-va-driver-non-free libmfx-gen1 libvpl2 libvpl-tools \
   #       libva-glx2 va-driver-all vainfo libze-dev intel-ocloc
+  #
+  # Install Compute Runtime for XE Graphics cards:
+  # - https://github.com/intel/compute-runtime
 }
 
 function funPIPSetup() {
@@ -88,13 +93,26 @@ function funSetupOpenVINONotebookExamples {
 function funLaunchJupyterLab {
   cd ${WD}
   source .venv/bin/activate
-  ./.venv/bin/jupyter lab
+  readonly TSN='ovino_notebooks' # TSN stands for tmux session name
+  tmux has-session -t $TSN
+  if [ $? != 0 ] ; then
+      tmux new-session s $TSN \; \
+        split-window 'bash -i -c "./.venv/bin/python Intel_NPU_monitor.py # ¹"' \;   \
+       	split-window './.venv/bin/jupyter lab | tee jupyter.lab.log' \;          \
+       	attach
+      # ¹ launching with an interactive bash looks to fix problems between tmux and ncurses lib.
+  fi
+  
+  tmux attach -t $TSN
 }
 
 
-
-funNPUSetup
-funGPUSetup
-funPIPSetup
-funSetupOpenVINONotebookExamples
+#### funNPUSetup
+#### funGPUSetup
+#### funPIPSetup
+#### funSetupOpenVINONotebookExamples
 funLaunchJupyterLab
+
+
+# OpenVINO Ollama integration 
+# <https://github.com/zhaohb/ollama_ov/tree/main?tab=readme-ov-file#google-driver> [[{PM.TODO}]]
