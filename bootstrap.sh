@@ -107,12 +107,15 @@ function funLaunchJupyterLab {
 }
 
 
-#### funNPUSetup
-#### funGPUSetup
-#### funPIPSetup
-#### funSetupOpenVINONotebookExamples
+funNPUSetup
+funGPUSetup
+funPIPSetup
+funSetupOpenVINONotebookExamples
 funLaunchJupyterLab
 
 
-# OpenVINO Ollama integration 
-# <https://github.com/zhaohb/ollama_ov/tree/main?tab=readme-ov-file#google-driver> [[{PM.TODO}]]
+# TODO:
+# - OpenVINO Ollama integration 
+#   <https://github.com/zhaohb/ollama_ov/tree/main?tab=readme-ov-file#google-driver> [[{PM.TODO}]]
+# - Check PyTorch integration
+#   <https://docs.openvino.ai/2026/openvino-workflow/torch-compile.html>
